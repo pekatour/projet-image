@@ -7,6 +7,10 @@
         "string": "cpp",
         "bitset": "cpp",
         "chrono": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "functional": "cpp",
+        "ostream": "cpp",
+        "initializer_list": "cpp",
+        "utility": "cpp"
     }
 }

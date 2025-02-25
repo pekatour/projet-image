@@ -83,13 +83,13 @@ void kmeans2(Mat data, Mat& bestLabels, int maxIter){
     }
 }
 
-void printCriterias(Mat im, Mat ref) {
+void Criterias(Mat im, Mat ref, float res[3]) {
     // im and ref are the same size, of type CV_8UC1
 
-    double TP = 0;
-    double FP = 0;
-    double TN = 0;
-    double FN = 0;
+    float TP = 0;
+    float FP = 0;
+    float TN = 0;
+    float FN = 0;
     for (size_t i = 0; i < im.rows; i++)
         {
             for (size_t j = 0; j < im.cols; j++)
@@ -113,14 +113,12 @@ void printCriterias(Mat im, Mat ref) {
             }
         }
         
-        double P = TP / ( TP + FP );
-        double S = TP / ( TP + FN );
-        double DSC = 2 * TP / ( 2 * TP + FP + FN );
-
-
-        cout << "P : " << P << endl;
-        cout << "S : " << S << endl;
-        cout << "DSC : " << DSC << endl;
+        float P = TP / ( TP + FP );
+        float S = TP / ( TP + FN );
+        float DSC = 2 * TP / ( 2 * TP + FP + FN );
+        res[0] = P;
+        res[1] = S;
+        res[2] = DSC;
 }
 
 
@@ -196,8 +194,36 @@ int main(int argc, char** argv)
         Mat ref;
         ref = imread(groundTruthFilename, cv::IMREAD_GRAYSCALE); 
 
-        printCriterias(res, ref);
-        printCriterias(res2, ref);
+        float* tab1 = new float[3];
+        float* tab2 = new float[3];
+        Criterias(res, ref, tab1);
+        res = Mat::ones(res.size(),res.type()) * 255 - res;
+        Criterias(res, ref, tab2);
+        if (tab1[2] > tab2[2]) {
+            cout << "P : " << tab1[0] << endl;
+            cout << "S : " << tab1[1] << endl;
+            cout << "DSC : " << tab1[2] << endl;
+        }
+        else {
+            cout << "P : " << tab2[0] << endl;
+            cout << "S : " << tab2[1] << endl;
+            cout << "DSC : " << tab2[2] << endl;
+        }
+
+        Criterias(res2, ref, tab1);
+        res2 = Mat::ones(res2.size(),res2.type()) * 255 - res2;
+        Criterias(res2, ref, tab2);
+        if (tab1[2] > tab2[2]) {
+            cout << "P : " << tab1[0] << endl;
+            cout << "S : " << tab1[1] << endl;
+            cout << "DSC : " << tab1[2] << endl;
+        }
+        else {
+            cout << "P : " << tab2[0] << endl;
+            cout << "S : " << tab2[1] << endl;
+            cout << "DSC : " << tab2[2] << endl;
+        }
+
     }
     return EXIT_SUCCESS;
 }
