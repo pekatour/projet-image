@@ -4,6 +4,9 @@
         "iostream": "cpp",
         "array": "cpp",
         "string_view": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "bitset": "cpp",
+        "chrono": "cpp",
+        "algorithm": "cpp"
     }
 }
