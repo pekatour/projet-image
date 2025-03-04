@@ -1,1 +1,6 @@
 build
+.cache
+.vscode/c_cpp_properties.json
+.clangd
+.clang-tidy
+compile_commands.json
