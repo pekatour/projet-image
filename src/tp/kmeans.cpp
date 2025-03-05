@@ -27,32 +27,30 @@ void kmeans2(Mat data, Mat& bestLabels, int maxIter){
 
     cv::RNG rng;
 
-    // Center initialization
+    // Center initialization for each cluster
     Vec3f c0 = data.at<Vec3f>(rng.uniform(0,data.rows),rng.uniform(0,data.cols));
     Vec3f c1 = data.at<Vec3f>(rng.uniform(0,data.rows),rng.uniform(0,data.cols));
 
-    int it = 0;
     Vec3f s0(0,0,0);
     Vec3f s1(0,0,0);
     double p0 = 0;
     double p1 = 0;
+
+    int it = 0;
     while (it<maxIter) {
         it++;
-        // cout << s0[0] << " ";
         s0[0] = 0;
         s0[1] = 0;
         s0[2] = 0;
         s1[0] = 0;
         s1[1] = 0;
         s1[2] = 0;
-        // cout << s0[0] << "\n";
         for (size_t i = 0; i < data.rows; i++)
         {
             for (size_t j = 0; j < data.cols; j++)
             {
                 auto d0 = cv::norm(c0 - data.at<Vec3f>(i,j));
                 auto d1 = cv::norm(c1 - data.at<Vec3f>(i,j));
-                // cout << d0 << " " << d1 << "\n";
 
                 if (d0 < d1) {
                     bestLabels.at<uchar>(i,j) = 1; 
@@ -69,6 +67,7 @@ void kmeans2(Mat data, Mat& bestLabels, int maxIter){
             }  
         }
         
+        // Averaging the sums to update each center
         if (countNonZero(bestLabels) == 0){ p0 = 1; }
         else { p0 = 1./countNonZero(bestLabels); }
         c0[0] = s0[0] * p0;
@@ -84,6 +83,7 @@ void kmeans2(Mat data, Mat& bestLabels, int maxIter){
 }
 
 void Criterias(Mat im, Mat ref, float res[3]) {
+    // returns the precision, sensitivity and DSC of the segmentation in the res parameter
     // im and ref are the same size, of type CV_8UC1
 
     float TP = 0;
@@ -190,15 +190,20 @@ int main(int argc, char** argv)
 
     waitKey();
 
+    // Compute the precision, sensitivity and DSC of the segmentation if the ground truth is provided
     if(!groundTruthFilename.empty()) {
         Mat ref;
         ref = imread(groundTruthFilename, cv::IMREAD_GRAYSCALE); 
 
+        // Arrays for the criterias of the final image, with its original colors and its inverted colors
         float* tab1 = new float[3];
         float* tab2 = new float[3];
+
+        // Criterias for the OpenCV kmeans
         Criterias(res, ref, tab1);
         res = Mat::ones(res.size(),res.type()) * 255 - res;
         Criterias(res, ref, tab2);
+        cout << "OpenCV kmeans" << endl;
         if (tab1[2] > tab2[2]) {
             cout << "P : " << tab1[0] << endl;
             cout << "S : " << tab1[1] << endl;
@@ -210,9 +215,11 @@ int main(int argc, char** argv)
             cout << "DSC : " << tab2[2] << endl;
         }
 
+        // Criterias for kmeans2
         Criterias(res2, ref, tab1);
         res2 = Mat::ones(res2.size(),res2.type()) * 255 - res2;
         Criterias(res2, ref, tab2);
+        cout << "kmeans2" << endl;
         if (tab1[2] > tab2[2]) {
             cout << "P : " << tab1[0] << endl;
             cout << "S : " << tab1[1] << endl;
