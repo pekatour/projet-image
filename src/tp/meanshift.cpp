@@ -30,18 +30,18 @@ void Criterias(Mat im, Mat ref, float res[3]) {
             {
                 if (im.at<uchar>(i,j) == ref.at<uchar>(i,j)){
                     if(ref.at<uchar>(i,j) == 255){
-                        TP++;
+                        TN++;
                     }
                     else {
-                        TN++;
+                        TP++;
                     }
                 }
                 else {
                     if(ref.at<uchar>(i,j) == 255){
-                        FN++;
+                        FP++;
                     }
                     else {
-                        FP++;
+                        FN++;
                     }
                 }
             }
@@ -127,6 +127,54 @@ int main(int argc, char** argv) {
         k++;
         arret = (k > kmax) || !existe;
     }
+
+    /* Mat res;
+    cv::cvtColor(m, res, cv::COLOR_BGR2GRAY);
+    res.convertTo(res, CV_8U);
+    int* c_modes = new int[50];
+    int* hist_modes = new int[50];
+    int nb_modes = 0;
+
+    for (int i = 0; i < m.rows; i++) {
+        for (int j = 0; j < m.cols; j++) {
+            bool app_mode = false;
+            for (int k = 0; k < nb_modes; k++) {l;
+                if (static_cast<int>(res.at<uchar>(i,j)) == c_modes[k]) {
+                    app_mode = true;
+                    hist_modes[k] = hist_modes[k]+1;
+                }
+            }
+            if (!app_mode && nb_modes<=50){
+                
+                hist_modes[nb_modes]=1;
+                c_modes[nb_modes] = res.at<uchar>(i,j);
+                nb_modes++;
+            }
+            else {
+                if (nb_modes > 50){
+                }
+            }
+        }
+    }
+    int maxi = 0;
+    int i_max;
+    int i_min;
+    int mini = m.cols*m.rows;
+
+    for (int i = 0; i < nb_modes; i++) {
+        if (hist_modes[i]> maxi){
+            maxi = hist_modes[i];
+            i_max = i;
+        }
+        if (hist_modes[i]< mini){
+            mini = hist_modes[i];
+            i_min = i;
+        }
+    }
+    int milieu;
+    milieu = (c_modes[i_min] + c_modes[i_max])/2;
+
+    cv::threshold(res, res, milieu, 255, cv::THRESH_BINARY); */
 
     Mat res;
     vector<int> new_shape = {m.cols * m.rows, 1};

@@ -1,0 +1,7 @@
+texture11
+./bin/meanshift ../data/images/texture11.png 10 30 ../data/images/texture11_VT.png 
+./bin/kmeans ../data/images/texture11.png 2 ../data/images/texture11_VT.png
+
+texture8
+./bin/meanshift ../data/images/texture8.png 10 30 ../data/images/texture8_VT.png
+./bin/kmeans ../data/images/texture8.png 2 ../data/images/texture8_VT.png

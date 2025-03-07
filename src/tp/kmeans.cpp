@@ -96,18 +96,18 @@ void Criterias(Mat im, Mat ref, float res[3]) {
             {
                 if (im.at<uchar>(i,j) == ref.at<uchar>(i,j)){
                     if(ref.at<uchar>(i,j) == 255){
-                        TP++;
+                        TN++;
                     }
                     else {
-                        TN++;
+                        TP++;
                     }
                 }
                 else {
                     if(ref.at<uchar>(i,j) == 255){
-                        FN++;
+                        FP++;
                     }
                     else {
-                        FP++;
+                        FN++;
                     }
                 }
             }
