@@ -30,10 +30,6 @@ int main(int argc, char** argv) {
     // load image from file
     Mat m;
     m = imread(imageFilename, cv::IMREAD_COLOR);
-    
-    // show base image
-    namedWindow("Base image", cv::WINDOW_AUTOSIZE);
-    imshow("Base image", m);
 
     // resize down image for efficiency
     const int down_width = 200;
