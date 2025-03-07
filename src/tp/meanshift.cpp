@@ -73,8 +73,8 @@ int main(int argc, char** argv) {
     m = imread(imageFilename, cv::IMREAD_COLOR);
 
     // resize down image for efficiency
-    const int down_width = 100;
-    const int down_height = 100;
+    const int down_width = 200;
+    const int down_height = 200;
     resize(m, m, Size(down_width, down_height), INTER_LINEAR);
     namedWindow("Resized image", cv::WINDOW_AUTOSIZE);
     imshow("Resized image", m);
@@ -165,7 +165,6 @@ int main(int argc, char** argv) {
         Criterias(res, ref, tab2);
         cout << "MeanShift" << endl;
         if (tab1[2] > tab2[2]) {
-            cout << "coucou" << endl;
             cout << "P : " << tab1[0] << endl;
             cout << "S : " << tab1[1] << endl;
             cout << "DSC : " << tab1[2] << endl;

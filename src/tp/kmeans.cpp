@@ -188,8 +188,6 @@ int main(int argc, char** argv)
     namedWindow("Avec kmeans2", cv::WINDOW_AUTOSIZE);
     imshow("Avec kmeans2", res2); 
 
-    waitKey();
-
     // Compute the precision, sensitivity and DSC of the segmentation if the ground truth is provided
     if(!groundTruthFilename.empty()) {
         Mat ref;
@@ -231,6 +229,7 @@ int main(int argc, char** argv)
             cout << "DSC : " << tab2[2] << endl;
         }
 
+        waitKey();
     }
     return EXIT_SUCCESS;
 }
