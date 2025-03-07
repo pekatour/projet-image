@@ -13,27 +13,68 @@ using namespace std;
 /** Print usage for this implementation of meanshift algorithme.
  */
 void printHelp(const string& progName) {
-    cout << "Usage:\n\t " << progName << " <image_file> [<image_ground_truth>]" << endl;
+    cout << "Usage:\n\t " << progName << " <image_file> <hs> <hc> [<image_ground_truth>]" << endl;
+}
+
+void Criterias(Mat im, Mat ref, float res[3]) {
+    // returns the precision, sensitivity and DSC of the segmentation in the res parameter
+    // im and ref are the same size, of type CV_8UC1
+
+    float TP = 0;
+    float FP = 0;
+    float TN = 0;
+    float FN = 0;
+    for (size_t i = 0; i < im.rows; i++)
+        {
+            for (size_t j = 0; j < im.cols; j++)
+            {
+                if (im.at<uchar>(i,j) == ref.at<uchar>(i,j)){
+                    if(ref.at<uchar>(i,j) == 255){
+                        TP++;
+                    }
+                    else {
+                        TN++;
+                    }
+                }
+                else {
+                    if(ref.at<uchar>(i,j) == 255){
+                        FN++;
+                    }
+                    else {
+                        FP++;
+                    }
+                }
+            }
+        }
+        
+        float P = TP / ( TP + FP );
+        float S = TP / ( TP + FN );
+        float DSC = 2 * TP / ( 2 * TP + FP + FN );
+        res[0] = P;
+        res[1] = S;
+        res[2] = DSC;
 }
 
 int main(int argc, char** argv) {
 
     // get passed arguments
-    if(argc != 2 && argc != 3) {
+    if(argc != 4 && argc != 5) {
         cout << " Incorrect number of arguments." << endl;
         printHelp(string(argv[0]));
         return EXIT_FAILURE;
     }
     const auto imageFilename = string(argv[1]);
-    const string groundTruthFilename = (argc == 3) ? string(argv[2]) : string();
+    const string groundTruthFilename = (argc == 5) ? string(argv[4]) : string();
+    const int hs = stoi(argv[2]); // spatial threshold
+    const int hc = stoi(argv[3]); // color threshold
 
     // load image from file
     Mat m;
     m = imread(imageFilename, cv::IMREAD_COLOR);
 
     // resize down image for efficiency
-    const int down_width = 200;
-    const int down_height = 200;
+    const int down_width = 100;
+    const int down_height = 100;
     resize(m, m, Size(down_width, down_height), INTER_LINEAR);
     namedWindow("Resized image", cv::WINDOW_AUTOSIZE);
     imshow("Resized image", m);
@@ -42,8 +83,6 @@ int main(int argc, char** argv) {
     m.convertTo(m,CV_32F);
 
     // meanshift algorithm
-    const int hs = 15; // spatial threshold
-    const int hc = 20; // color threshold
     const float eps = TermCriteria::EPS; // stop parameter for distance pixel - mean
     const int kmax = 50; // stop parameter, max iterations
     int k = 0; // iteration parameter
@@ -89,10 +128,55 @@ int main(int argc, char** argv) {
         arret = (k > kmax) || !existe;
     }
 
+    Mat res;
+    vector<int> new_shape = {m.cols * m.rows, 1};
+    res = m.reshape(3, new_shape);
+    // now we can call kmeans(...)
+    Mat bestLabels;
+    Mat centers;
+    kmeans(res,2,bestLabels, TermCriteria( TermCriteria::EPS+TermCriteria::COUNT, 10, 1.0), 3, KMEANS_PP_CENTERS, centers);
+    normalize(bestLabels, res, 0, 255, cv::NORM_MINMAX);
+    new_shape = {m.rows, m.cols};
+    res = res.reshape(1,new_shape);
+    res.convertTo(res, CV_8U);
+
+
     // show resulting segmented image using meanshift algorithm
     m.convertTo(m, CV_8U);
-    namedWindow("Segmented image", cv::WINDOW_AUTOSIZE);
-    imshow("Segmented image", m);
+    namedWindow("Segmented image with MeanShift", cv::WINDOW_AUTOSIZE);
+    imshow("Segmented image with MeanShift", m);
+
+    // show resulting segmented image after using kmeans to binarize
+    namedWindow("Segmented image after kmeans", cv::WINDOW_AUTOSIZE);
+    imshow("Segmented image after kmeans", res);
+
+    if(!groundTruthFilename.empty()) {
+        Mat ref;
+        ref = imread(groundTruthFilename, cv::IMREAD_GRAYSCALE); 
+
+        // Arrays for the criterias of the final image, with its original colors and its inverted colors
+        float* tab1 = new float[3];
+        float* tab2 = new float[3];
+
+        // Criterias for the segmented image
+        resize(ref, ref, Size(down_width, down_height), INTER_LINEAR);
+        Criterias(res, ref, tab1);
+        res = Mat::ones(res.size(),res.type()) * 255 - res;
+        Criterias(res, ref, tab2);
+        cout << "MeanShift" << endl;
+        if (tab1[2] > tab2[2]) {
+            cout << "coucou" << endl;
+            cout << "P : " << tab1[0] << endl;
+            cout << "S : " << tab1[1] << endl;
+            cout << "DSC : " << tab1[2] << endl;
+        }
+        else {
+            cout << "P : " << tab2[0] << endl;
+            cout << "S : " << tab2[1] << endl;
+            cout << "DSC : " << tab2[2] << endl;
+        }
+
+    }
 
     // wait until esc pressed
     while(cv::waitKey(1) != 27);
