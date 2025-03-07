@@ -229,7 +229,7 @@ int main(int argc, char** argv)
             cout << "DSC : " << tab2[2] << endl;
         }
 
-        waitKey();
     }
+    waitKey();
     return EXIT_SUCCESS;
 }

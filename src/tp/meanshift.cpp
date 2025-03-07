@@ -81,15 +81,17 @@ int main(int argc, char** argv) {
 
     // convert image to floats CV_32F
     m.convertTo(m,CV_32F);
+    Mat copied;
+    copied = m.clone();
 
     // meanshift algorithm
-    const float eps = TermCriteria::EPS; // stop parameter for distance pixel - mean
+    const float eps = 0.5; // stop parameter for distance pixel - mean
     const int kmax = 50; // stop parameter, max iterations
     int k = 0; // iteration parameter
     bool arret = false; // true when stop conditions are met
     while (!arret) {
         bool existe = false;
-
+        cout << "k : "<< k << endl;
         // iterate over pixels in image
         for (int i = 0; i < m.rows; i++) {
             for (int j = 0; j < m.cols; j++) {
@@ -118,7 +120,7 @@ int main(int argc, char** argv) {
                 existe = (cv::norm(mh - m.at<Vec3f>(i,j)) > eps) || existe ;
                 
                 // replace current pixel by mean of neighboring pixels
-                m.at<Vec3f>(i,j) = mh;
+                copied.at<Vec3f>(i,j) = mh;
 
             }
         }
@@ -126,6 +128,7 @@ int main(int argc, char** argv) {
         // update parameters
         k++;
         arret = (k > kmax) || !existe;
+        m = copied;
     }
 
     /* Mat res;
@@ -138,7 +141,7 @@ int main(int argc, char** argv) {
     for (int i = 0; i < m.rows; i++) {
         for (int j = 0; j < m.cols; j++) {
             bool app_mode = false;
-            for (int k = 0; k < nb_modes; k++) {l;
+            for (int k = 0; k < nb_modes; k++) {
                 if (static_cast<int>(res.at<uchar>(i,j)) == c_modes[k]) {
                     app_mode = true;
                     hist_modes[k] = hist_modes[k]+1;
